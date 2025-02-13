@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "155414570654",
+    "project_id": "appaxion-7f72d",
+    "storage_bucket": "appaxion-7f72d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:155414570654:android:eab4f103896fe90d3a7d8f",
+        "android_client_info": {
+          "package_name": "com.example.axion_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "155414570654-alghktasj17rp3ra6ld285nhqium3ie4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.axion_app",
+            "certificate_hash": "6d66bdd443fff608357d33d375e0d8341bb51b6c"
+          }
+        },
+        {
+          "client_id": "155414570654-63nkl6sha7ttvsvddgvv7aibgmlecfd2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUjjBLeKHLrrb-6oZnZyzh-QG3wFV9q_I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "155414570654-63nkl6sha7ttvsvddgvv7aibgmlecfd2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
