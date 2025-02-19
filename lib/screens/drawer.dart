@@ -2,12 +2,20 @@ import 'package:axion_app/screens/codigo_colores_screen.dart';
 import 'package:axion_app/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'calculo_potencia_screen.dart'; // Asegúrate de importar la pantalla de Cálculo de Potencia
+import 'calculo_potencia_screen.dart';
 import 'login_screen.dart';
-import 'package:axion_app/screens/cuenta_screen.dart';
+import 'package:axion_app/screens/perfil_screen.dart';
+import 'package:axion_app/screens/geoaxion_screen.dart';
+import 'package:axion_app/screens/comunidad_screen.dart';
+import 'package:axion_app/screens/proyectos_screen.dart';
+import 'package:flutter/cupertino.dart';
 
 
 class CustomDrawer extends StatefulWidget {
+    final Function(bool) toggleTheme;
+  final bool isDarkMode;
+
+  CustomDrawer({required this.toggleTheme, required this.isDarkMode});
   @override
   _CustomDrawerState createState() => _CustomDrawerState();
 }
@@ -15,6 +23,7 @@ class CustomDrawer extends StatefulWidget {
 class _CustomDrawerState extends State<CustomDrawer> {
   String _userName = 'Cargando...';
   String _userEmail = 'Cargando...';
+  bool _isDarkMode = false;
 
   @override
   void initState() {
@@ -22,225 +31,280 @@ class _CustomDrawerState extends State<CustomDrawer> {
     _loadUserData();
   }
 
-  // Método para cargar datos del usuario desde SharedPreferences
   void _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _userName = prefs.getString('user_name') ?? 'Usuario'; // Establecer el nombre por defecto
-      _userEmail = prefs.getString('user_email') ?? 'Email no disponible'; // Establecer el email por defecto
+      _userName = prefs.getString('user_name') ?? 'Usuario';
+      _userEmail = prefs.getString('user_email') ?? 'Email no disponible';
+      _isDarkMode = prefs.getBool('dark_mode') ?? false;
     });
   }
 
-  // Método para cerrar sesión
-  void _logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear(); // Elimina todos los datos de SharedPreferences
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => LoginScreen()), // Redirige a LoginScreen
+
+  void _toggleDarkMode(bool value) async {
+  final prefs = await SharedPreferences.getInstance();
+  setState(() {
+    _isDarkMode = value;
+    prefs.setBool('dark_mode', value);
+  });
+
+  widget.toggleTheme(value); // 🔥 Llamamos a la función para cambiar el tema globalmente
+}
+
+
+
+
+  Widget _buildIcon(IconData icon, Color color) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: _isDarkMode ? Colors.white.withOpacity(0.1) : color.withOpacity(0.1),
+      ),
+      padding: EdgeInsets.all(8),
+      child: Icon(icon, color: _isDarkMode ? Colors.white : color),
     );
   }
+
+    void _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+    );
+  }
+void _showLogoutDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        backgroundColor: _isDarkMode ? Colors.grey[900] : Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        title: Center(
+          child: Text(
+            'Cerrar Sesión',
+            style: TextStyle(
+              color: _isDarkMode ? Colors.white : Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '¿Estás seguro de que quieres cerrar sesión?',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: _isDarkMode ? Colors.white70 : Colors.black87,
+                fontSize: 16,
+              ),
+            ),
+            SizedBox(height: 25), // Más espacio antes del primer botón
+            SizedBox(
+              width: 200, // Ancho fijo para los botones
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Cerrar el diálogo
+                  _logout(); // Llamar a la función de cierre de sesión
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF163C9F), // Fondo azul oscuro
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 16), // 🔥 Más padding en el alto
+                ),
+                child: Text(
+                  'Sí, Cerrar Sesión',
+                  style: TextStyle(
+                    color: Colors.white, // Texto en blanco
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 15), // Más espacio entre los botones
+            SizedBox(
+              width: 200, // Ancho fijo para los botones
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Cerrar el diálogo
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFF1F4FE), // Fondo azul claro
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 16), // 🔥 Más padding en el alto
+                ),
+                child: Text(
+                  'Cancelar',
+                  style: TextStyle(
+                    color: Color(0xFF004CFF), // Texto azul
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      width: MediaQuery.of(context).size.width * 0.9, // 80% del ancho
-      child: Container(
-        color: Color(0xFF0083F7), // Establece el color de fondo a #0083F7
-        padding: const EdgeInsets.only(top: 40.0, right: 20.0, bottom: 20.0, left: 20.0),
-        child: Column(
-          children: <Widget>[
-            // Cabecera del Drawer con la imagen y los datos del usuario a la derecha
-            Padding(
-              padding: const EdgeInsets.only(bottom: 30.0),
-              child: Row(
-                children: [
-                  CircleAvatar(
+      width: MediaQuery.of(context).size.width * 0.9,
+      child: Column(
+        children: <Widget>[
+          Container(
+            color: _isDarkMode ? Colors.black : Color(0xFFF0F8FF),
+             padding: const EdgeInsets.only(top:50.0, right: 20.0, bottom: 20.0, left: 20.0),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => PerfilScreen()),
+                    );
+                  },
+                  child: CircleAvatar(
                     backgroundColor: Colors.white,
                     radius: 30,
-                    child: Image.asset('assets/images/axionlogo2.png') // Icono con color azul
+                    child: ClipRRect( // Asegura que la imagen también sea redondeada
+                      borderRadius: BorderRadius.circular(30), // Hace que la imagen dentro del CircleAvatar sea circular
+                      child: Image.asset(
+                        'assets/images/usuarioaxion.png',
+                        fit: BoxFit.cover, // Asegura que la imagen cubra bien el espacio
+                      ),
+                    ),
                   ),
-                  SizedBox(width: 16), // Espacio entre la imagen y el texto
-                  Column(
+                ),
+
+                SizedBox(width: 16),
+                Expanded(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _userName, // Mostrar el nombre del usuario
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                        _userName,
+                        style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       Text(
-                        _userEmail, // Mostrar el correo del usuario
-                        style: TextStyle(color: Colors.white, fontSize: 14),
+                        _userEmail,
+                        style: TextStyle(color: _isDarkMode ? Colors.white70 : Colors.black54, fontSize: 14),
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.edit, color: _isDarkMode ? Colors.white : Colors.black),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => PerfilScreen()),
+                    );
+                  },
+                ),
+              ],
             ),
-            // Aquí eliminamos los márgenes a la izquierda en los ListTile con contentPadding vacío
-
-
-            ListTile(
-              contentPadding: EdgeInsets.symmetric(horizontal: 0.0), // Elimina los márgenes a la izquierda
-              title: Text(
-                'Aprendizaje',
-                style: TextStyle(color: Colors.white), // Texto blanco
-              ),
-              onTap: () {
-                // Redirigir a la vista de Cálculo de Potencia
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomeScreen()),
-                );
-              },
-            ),
-
-            ListTile(
-              contentPadding: EdgeInsets.symmetric(horizontal: 0.0), // Elimina los márgenes a la izquierda
-              title: Text(
-                'Cálculo Óptico',
-                style: TextStyle(color: Colors.white), // Texto blanco
-              ),
-              onTap: () {
-                // Redirigir a la vista de Cálculo de Potencia
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CalculoOpticoScreen()),
-                );
-              },
-            ),
-            ListTile(
-              contentPadding: EdgeInsets.symmetric(horizontal: 0.0), // Elimina los márgenes a la izquierda
-              title: Text(
-                'Código de Colores',
-                style: TextStyle(color: Colors.white), // Texto blanco
-              ),
-              onTap: () {
-                  // Acción al presionar 'Codigo de colores'
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CodigoColoresScreen()),
-                );
-              },
-            ),
-            ListTile(
-              contentPadding: EdgeInsets.symmetric(horizontal: 0.0), // Elimina los márgenes a la izquierda
-              title: Text(
-                'GeoAxion (Pronto)',
-                style: TextStyle(color: Colors.white), // Texto blanco
-              ),
-              onTap: () {
-                  // Acción al presionar 'Generar reporte'
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => ReportesScreen()),
-                // );
-              },
-            ),
-
-            ListTile(
-              contentPadding: EdgeInsets.symmetric(horizontal: 0.0), // Elimina los márgenes a la izquierda
-              title: Text(
-                'Generar Reporte (Pronto)',
-                style: TextStyle(color: Colors.white), // Texto blanco
-              ),
-              onTap: () {
-                  // Acción al presionar 'Generar reporte'
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => ReportesScreen()),
-                // );
-              },
-            ),
-
-            ListTile(
-              contentPadding: EdgeInsets.symmetric(horizontal: 0.0), // Elimina los márgenes a la izquierda
-              title: Text(
-                'Comunidad (Pronto)',
-                style: TextStyle(color: Colors.white), // Texto blanco
-              ),
-              onTap: () {
-                  // Acción al presionar 'Comunidad'
-              },
-            ),
-
-            Divider(color: Colors.white), // Línea separadora blanca
-
-            ListTile(
-              contentPadding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0), // Elimina los márgenes a la izquierda
-              title: Text(
-                'Gestionar cuenta',
-                style: TextStyle(color: Colors.white), // Texto blanco
-              ),
-              onTap: () {
-                // Acción al presionar 'Gestionar cuenta'
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => EditarPerfilScreen()),
-                );
-              },
-            ),
-            ListTile(
-              contentPadding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),  // Elimina los márgenes a la izquierda
-              title: Text(
-                'Cerrar Sesión',
-                style: TextStyle(color: Colors.white), // Texto blanco
-              ),
-              onTap: _logout, // Llama a la función _logout al presionar
-            ),
-            // ListTile(
-            //   contentPadding: EdgeInsets.symmetric(horizontal: 0.0), // Elimina los márgenes a la izquierda
-            //   title: Text(
-            //     'Suscripciones',
-            //     style: TextStyle(color: Colors.white), // Texto blanco
-            //   ),
-            //   onTap: () {
-            //     // Acción al presionar 'Suscripciones'
-            //   },
-            // ),
-            // ListTile(
-            //   contentPadding: EdgeInsets.symmetric(horizontal: 0.0), // Elimina los márgenes a la izquierda
-            //   title: Text(
-            //     'Ajustes',
-            //     style: TextStyle(color: Colors.white), // Texto blanco
-            //   ),
-            //   onTap: () {
-            //     // Acción al presionar 'Ajustes'
-            //   },
-            // ),
-            Spacer(), // Asegura que la imagen esté en la parte inferior
-            Image.asset(
-              'assets/images/axionlogo.png',
-              height: 50, // Ajusta el tamaño de la imagen si es necesario
-              width: 100,
-              fit: BoxFit.contain,
-            ),
-            // Agregar el texto debajo de la imagen
-            Padding(
-              padding: const EdgeInsets.only(top: 0.0),
+          ),
+          Expanded(
+            child: Container(
+              color: _isDarkMode ? Colors.black : Colors.white,
               child: Column(
                 children: [
-                  Text(
-                    'Versión Beta V1.001',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
+                  SizedBox(height: 15),
+                  ListTile(
+                    leading: _buildIcon(Icons.dark_mode, Colors.black),
+                    title: Text('Modo Oscuro', style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black)),
+                    trailing: CupertinoSwitch(
+                      value: _isDarkMode,
+                      onChanged: _toggleDarkMode,
+                      activeColor: Colors.grey.shade300, // Color cuando está activado
+                      trackColor: Colors.grey.shade300, // Color del fondo cuando está desactivado
+                      thumbColor: _isDarkMode ? Colors.black : Colors.white, // Color del "círculo"
                     ),
                   ),
-                  SizedBox(height: 4), // Espacio entre los textos
-                  Text(
-                    '2025 - © All rights reserved',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
+
+                  SizedBox(height: 15),
+                  ListTile(
+                    leading: _buildIcon(Icons.school, Colors.blue),
+                    title: Text('Aprendizaje', style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black)),
+                    trailing: Icon(Icons.arrow_forward_ios, color: _isDarkMode ? Colors.white : Colors.black),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen(toggleTheme: widget.toggleTheme, isDarkMode: widget.isDarkMode))),
+                  ),
+                  SizedBox(height: 15),
+                  ListTile(
+                    leading: _buildIcon(Icons.calculate, Colors.orangeAccent),
+                    title: Text('Cálculo Óptico', style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black)),
+                    trailing: Icon(Icons.arrow_forward_ios, color: _isDarkMode ? Colors.white : Colors.black),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => CalculoOpticoScreen())),
+                  ),
+                  SizedBox(height: 15),
+                  ListTile(
+                    leading: _buildIcon(Icons.color_lens, Colors.red),
+                    title: Text('Código de Colores', style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black)),
+                    trailing: Icon(Icons.arrow_forward_ios, color: _isDarkMode ? Colors.white : Colors.black),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => CodigoColoresScreen())),
+                  ),
+                  SizedBox(height: 15),
+                  ListTile(
+                    leading: _buildIcon(Icons.map, Colors.green),
+                    title: Text('GeoAxion', style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black)),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GeoAxionScreen())),
+                  ),
+                  SizedBox(height: 15),
+                  ListTile(
+                    leading: _buildIcon(Icons.report, Colors.purple),
+                    title: Text('Generar Reporte', style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black)),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProyectsScreen())),
+                  ),
+                  SizedBox(height: 15),
+                  ListTile(
+                    leading: _buildIcon(Icons.people, Colors.deepOrange),
+                    title: Text('Comunidad', style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black)),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ComunidadScreen())),
+                  ),
+                  SizedBox(height: 15),
+                  // ListTile(
+                  //   leading: Icon(Icons.person, color: _isDarkMode ? Colors.white : Colors.black),
+                  //   title: Text('Perfil', style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black)),
+                  //   trailing: Icon(Icons.arrow_forward_ios, color: _isDarkMode ? Colors.white : Colors.black),
+                  //   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => PerfilScreen())),
+                  // ),
+                  Center(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF4C6ED7), // Color de fondo
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10), // Bordes redondeados
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20), // Espaciado interno
+                      ),
+                      onPressed: () {
+                        _showLogoutDialog(context); // Mostrar alerta antes de cerrar sesión
+                      },
+                      child: Text(
+                        'Cerrar Sesión',
+                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 10), // Espacio adicional al final
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

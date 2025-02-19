@@ -43,8 +43,7 @@ dependencies:
   open_file: ^3.2.1 # Para abrir el archivo descargado
   pdf: ^3.8.0  # Para generar PDFs
   permission_handler: ^10.2.0  # Asegúrate de que sea la última versión
-
-
+  google_fonts: ^6.1.0
 
 
 dev_dependencies:
@@ -76,6 +75,13 @@ flutter:
     - assets/images/axionlogo2.png
     - assets/images/axionlogo3.png
     - assets/images/loginfondo.png
+    - assets/images/usuarioaxion.png
+    - assets/images/slider_image1.png
+    - assets/images/slider_image2.png
+    - assets/images/slider_image3.png
+    - assets/images/slider_image4.png
+    - assets/images/fondomp.png
+    - assets/images/colorescable.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

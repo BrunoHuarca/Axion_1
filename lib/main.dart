@@ -8,33 +8,64 @@ import 'screens/calculo_potencia_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(MyApp());
+  final isDarkMode = await getThemePreference(); // Cargar la preferencia de tema antes de iniciar la app
+  runApp(MyApp(isDarkMode: isDarkMode));
+}
+
+Future<bool> getThemePreference() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getBool('dark_mode') ?? false; // Retorna el tema guardado o falso por defecto
 }
 
 class MyApp extends StatefulWidget {
+  final bool isDarkMode;
+  MyApp({required this.isDarkMode});
+
   @override
   _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
+  late bool _isDarkMode;
+
+  @override
+  void initState() {
+    super.initState();
+    _isDarkMode = widget.isDarkMode;
+  }
+
+  void _toggleTheme(bool isDark) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('dark_mode', isDark);
+    setState(() {
+      _isDarkMode = isDark;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Axion App',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: SplashScreen(),
+      debugShowCheckedModeBanner: false,
+      theme: _isDarkMode ? ThemeData.dark() : ThemeData.light(),
+      home: SplashScreen(toggleTheme: _toggleTheme, isDarkMode: _isDarkMode),
       routes: {
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
-        '/home': (context) => HomeScreen(),
+        '/home': (context) => HomeScreen(toggleTheme: (value) {}, isDarkMode: false),
         '/calculo_potencia': (context) => CalculoOpticoScreen(),
-        '/inicio': (context) => InicioScreen(),
+        '/inicio': (context) => InicioScreen(toggleTheme: _toggleTheme, isDarkMode: _isDarkMode),
       },
     );
   }
 }
 
 class SplashScreen extends StatefulWidget {
+  final Function(bool) toggleTheme;
+  final bool isDarkMode;
+
+  SplashScreen({required this.toggleTheme, required this.isDarkMode});
+
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -62,7 +93,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF000021),
+      backgroundColor: widget.isDarkMode ? Colors.black : Color(0xFF000021),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

@@ -1,79 +1,64 @@
 import 'package:flutter/material.dart';
-import 'package:axion_app/services/api_service.dart';
-import 'package:axion_app/models/section.dart';
-import 'documentos_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-class ComunidadScreen extends StatefulWidget {
+class ComunidadScreen extends StatelessWidget {
 
-  @override
-  _ComunidadScreenState createState() => _ComunidadScreenState();
-}
-
-class _ComunidadScreenState extends State<ComunidadScreen> {
-  @override
+@override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(kToolbarHeight), // Mantiene la altura estándar
+        child: Container(
+          padding: EdgeInsets.only(top: 25), // 🔹 Agrega el espacio superior
+          color: Colors.white, // Asegura que el fondo sea blanco
+          child: AppBar(
+            title: Text("Comunidad"),
+            backgroundColor: Colors.white,
+            elevation: 0,
+            centerTitle: true,
+          ),
+        ),
+      ),
+      backgroundColor: Colors.white,
+      body: Stack(
         children: [
-          // Encabezado
-          Container(
-            height: MediaQuery.of(context).size.height * 0.3,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Color(0xFF00001B),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(0),
-                bottomRight: Radius.circular(100),
-              ),
+          // Imagen de fondo alineada abajo
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Image.asset(
+              'assets/images/fondomp.png', // Asegúrate de tener esta imagen en tu proyecto
+              width: double.infinity,
+              fit: BoxFit.cover,
             ),
-            child: Stack(
+          ),
+          // Contenido centrado
+          // Contenido centrado y un poco más arriba
+          Positioned(
+            top: MediaQuery.of(context).size.height * 0.15, // Ajusta la altura
+            left: 20,
+            right: 20,
+            child: Column(
               children: [
-                Positioned(
-                  top: 40,
-                  left: 20,
-                  child: IconButton(
-                    icon: Icon(Icons.arrow_back, color: Colors.white, size: 28),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+                Text(
+                  'MUY\nPRONTO',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    fontSize: 40,
+                    fontWeight: FontWeight.w900, // Peso 900
+                    color: Color(0xFF001520), // Color del título
                   ),
                 ),
-                Positioned(
-                  top: 40,
-                  right: 20,
-                  child: Container(
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: Image.asset(
-                      './assets/images/axionlogo2.png',
-                      height: 50,
-                      width: 50,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 20,
-                  left: 20,
-                  child: Text(
-                    'Comunidad',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w200,
-                    ),
+                SizedBox(height: 10),
+                Text(
+                  'Pronto estaremos\nabriendo esta función',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w400, // Peso 400
+                    color: Color(0xFF023047), // Color del texto de abajo
                   ),
                 ),
               ],
-            ),
-          ),
-          SizedBox(height: 10),
-          Expanded(
-            child: Text(
-              'Pronto...',
-              style: TextStyle(fontSize: 20),
             ),
           ),
         ],
