@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:axion_app/widgets/loading_widget.dart';
 
 class EditarContrasenaScreen extends StatefulWidget {
   final int userId;
@@ -20,13 +22,27 @@ class _EditarContrasenaScreenState extends State<EditarContrasenaScreen> {
   bool _ocultarContrasenaActual = true;
   bool _ocultarNuevaContrasena = true;
   bool _ocultarConfirmarContrasena = true;
+  bool _isDarkMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _getDarkModePreference();
+  }
+
+  Future<void> _getDarkModePreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isDarkMode = prefs.getBool('dark_mode') ?? false;
+    });
+  }
 
   Future<void> _actualizarContrasena() async {
     if (!_formKey.currentState!.validate()) return;
 
     if (_nuevaContrasenaController.text != _confirmarContrasenaController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("⚠️ Las contraseñas no coinciden")),
+        SnackBar(content: Text("⚠️ Las contraseñas no coinciden")),
       );
       return;
     }
@@ -51,7 +67,7 @@ class _EditarContrasenaScreenState extends State<EditarContrasenaScreen> {
     final responseData = jsonDecode(response.body);
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("✅ Contraseña actualizada con éxito")),
+        SnackBar(content: Text("✅ Contraseña actualizada con éxito")),
       );
       Navigator.pop(context);
     } else {
@@ -64,17 +80,21 @@ class _EditarContrasenaScreenState extends State<EditarContrasenaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _isDarkMode ? Colors.black : Colors.white,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(kToolbarHeight),
         child: Container(
           padding: EdgeInsets.only(top: 25),
-          color: Colors.white,
+          color: _isDarkMode ? Colors.black : Colors.white,
           child: AppBar(
-            title: Text("Editar Contraseña"),
-            backgroundColor: Colors.white,
+            title: Text(
+              "Editar Contraseña",
+              style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black),
+            ),
+            backgroundColor: _isDarkMode ? Colors.black : Colors.white,
             elevation: 0,
             centerTitle: true,
+            iconTheme: IconThemeData(color: _isDarkMode ? Colors.white : Colors.black),
           ),
         ),
       ),
@@ -91,19 +111,26 @@ class _EditarContrasenaScreenState extends State<EditarContrasenaScreen> {
                     children: [
                       Text(
                         "Completa tu Perfil",
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: _isDarkMode ? Colors.white : Colors.black,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 5),
                       Text(
                         "No te preocupes, sólo tú puedes ver tus datos personales. Nadie más podrá verlos.",
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: _isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 20),
                       CircleAvatar(
                         radius: 50,
-                        backgroundColor: Colors.grey[300],
+                        backgroundColor: _isDarkMode ? Colors.grey[800] : Colors.grey[300],
                         backgroundImage: AssetImage("assets/images/usuarioaxion.png"),
                       ),
                       SizedBox(height: 20),
@@ -111,7 +138,6 @@ class _EditarContrasenaScreenState extends State<EditarContrasenaScreen> {
                   ),
                 ),
 
-                // ✅ CAMPOS SIN BORDE, TÍTULOS ARRIBA Y CON ICONOS
                 _buildTextField(
                   "Contraseña Actual",
                   _contrasenaActualController,
@@ -151,15 +177,14 @@ class _EditarContrasenaScreenState extends State<EditarContrasenaScreen> {
 
                 SizedBox(height: 30),
 
-                // ✅ BOTONES REDONDOS
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _isLoading
-                        ? CircularProgressIndicator()
-                        : _buildActionButton(Icons.check, Colors.white, _actualizarContrasena),
+                        ? Center(child: LoadingWidget(animationPath: 'assets/icons/mano.json'))
+                        : _buildActionButton(Icons.check, _isDarkMode ? Colors.grey[800]! : Colors.white, _actualizarContrasena),
                     SizedBox(width: 20),
-                    _buildActionButton(Icons.close, Colors.white, () {
+                    _buildActionButton(Icons.close, _isDarkMode ? Colors.grey[800]! : Colors.white, () {
                       Navigator.pop(context);
                     }),
                   ],
@@ -172,44 +197,48 @@ class _EditarContrasenaScreenState extends State<EditarContrasenaScreen> {
     );
   }
 
- Widget _buildTextField(String label, TextEditingController controller, IconData icon, bool isPassword, bool isObscured, VoidCallback toggleVisibility) {
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 15),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-        ),
-        SizedBox(height: 5),
-        Container(
-          decoration: BoxDecoration(
-            color: Color(0xFFF1F6FB),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: TextFormField(
-            controller: controller,
-            obscureText: isPassword ? isObscured : false, // 🔹 Usa el estado para ocultar/mostrar
-            decoration: InputDecoration(
-              prefixIcon: Icon(icon, color: Colors.blueGrey),
-              suffixIcon: isPassword
-                  ? IconButton(
-                      icon: Icon(isObscured ? Icons.visibility_off : Icons.visibility, color: Colors.blueGrey),
-                      onPressed: toggleVisibility,
-                    )
-                  : null,
-              contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-              border: InputBorder.none,
+  Widget _buildTextField(String label, TextEditingController controller, IconData icon, bool isPassword, bool isObscured, VoidCallback toggleVisibility) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: _isDarkMode ? Colors.white : Colors.black,
             ),
-            validator: (value) => value!.isEmpty ? "Este campo es obligatorio" : null,
           ),
-        ),
-      ],
-    ),
-  );
-}
-
+          SizedBox(height: 5),
+          Container(
+            decoration: BoxDecoration(
+              color: _isDarkMode ? Colors.grey[800] : Color(0xFFF1F6FB),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: TextFormField(
+              controller: controller,
+              obscureText: isPassword ? isObscured : false,
+              style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black),
+              decoration: InputDecoration(
+                prefixIcon: Icon(icon, color: _isDarkMode ? Colors.white70 : Colors.blueGrey),
+                suffixIcon: isPassword
+                    ? IconButton(
+                        icon: Icon(isObscured ? Icons.visibility_off : Icons.visibility, color: Colors.blueGrey),
+                        onPressed: toggleVisibility,
+                      )
+                    : null,
+                contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+                border: InputBorder.none,
+              ),
+              validator: (value) => value!.isEmpty ? "Este campo es obligatorio" : null,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildActionButton(IconData icon, Color color, VoidCallback onPressed) {
     return Container(
@@ -218,16 +247,10 @@ class _EditarContrasenaScreenState extends State<EditarContrasenaScreen> {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: color,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 10,
-            offset: Offset(2, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(2, 2))],
       ),
       child: IconButton(
-        icon: Icon(icon, color: Colors.black, size: 28),
+        icon: Icon(icon, color: _isDarkMode ? Colors.white : Colors.black, size: 28),
         onPressed: onPressed,
       ),
     );

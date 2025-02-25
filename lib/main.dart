@@ -42,22 +42,30 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Axion App',
-      debugShowCheckedModeBanner: false,
-      theme: _isDarkMode ? ThemeData.dark() : ThemeData.light(),
-      home: SplashScreen(toggleTheme: _toggleTheme, isDarkMode: _isDarkMode),
-      routes: {
-        '/login': (context) => LoginScreen(),
-        '/register': (context) => RegisterScreen(),
-        '/home': (context) => HomeScreen(toggleTheme: (value) {}, isDarkMode: false),
-        '/calculo_potencia': (context) => CalculoOpticoScreen(),
-        '/inicio': (context) => InicioScreen(toggleTheme: _toggleTheme, isDarkMode: _isDarkMode),
-      },
-    );
-  }
+@override
+Widget build(BuildContext context) {
+  return MaterialApp(
+    title: 'Axion App',
+    debugShowCheckedModeBanner: false,
+    theme: ThemeData(
+      brightness: _isDarkMode ? Brightness.dark : Brightness.light,
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: Colors.black, // 🔥 Hace que el cursor sea negro en todos los TextField
+        selectionColor: Colors.grey.withOpacity(0.5), // Color al seleccionar texto
+        selectionHandleColor: Colors.black, // Controlador de selección negro
+      ),
+    ),
+    home: SplashScreen(toggleTheme: _toggleTheme, isDarkMode: _isDarkMode),
+    routes: {
+      '/login': (context) => LoginScreen(),
+      '/register': (context) => RegisterScreen(),
+      '/home': (context) => HomeScreen(toggleTheme: _toggleTheme, isDarkMode: _isDarkMode),
+      '/calculo_potencia': (context) => CalculoOpticoScreen(),
+      '/inicio': (context) => InicioScreen(toggleTheme: _toggleTheme, isDarkMode: _isDarkMode),
+    },
+  );
+}
+
 }
 
 class SplashScreen extends StatefulWidget {
@@ -109,7 +117,7 @@ class _SplashScreenState extends State<SplashScreen> {
           Column(
             children: [
               Text(
-                'Versión 1.0.1',
+                'Versión 1.2.0',
                 style: TextStyle(color: Colors.white70, fontSize: 14),
               ),
               SizedBox(height: 5),

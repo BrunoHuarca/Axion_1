@@ -4,6 +4,7 @@ import 'package:axion_app/screens/codigo_colores_screen.dart';
 import 'drawer.dart';  
 import 'package:axion_app/screens/geoaxion_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HerramientasScreen extends StatefulWidget {
   final Function(bool) toggleTheme;
@@ -16,16 +17,32 @@ class HerramientasScreen extends StatefulWidget {
 }
 
 class _HerramientasScreenState extends State<HerramientasScreen> {
+    late bool _isDarkMode;
+
+  @override
+  void initState() {
+    super.initState();
+    _getDarkModePreference().then((value) {
+    setState(() {
+      _isDarkMode = value;
+    });
+  });
+  }
+Future<bool> _getDarkModePreference() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getBool('dark_mode') ?? false;
+}
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      backgroundColor: _isDarkMode ? Colors.black : Colors.white,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(kToolbarHeight),
         child: Container(
           padding: EdgeInsets.only(top: 30),
-          color: Color(0xFF00136D),
+          color: _isDarkMode ? Colors.black : Color(0xFF00136D),
           child: AppBar(
             leading: IconButton(
               icon: Icon(Icons.arrow_back, color: Colors.white),
@@ -34,7 +51,7 @@ class _HerramientasScreenState extends State<HerramientasScreen> {
               },
             ),
             title: Text("Herramientas", style: TextStyle(color: Colors.white, fontSize: 20)),
-            backgroundColor: Color(0xFF00136D),
+            backgroundColor: _isDarkMode ? Colors.black : Color(0xFF00136D),
             elevation: 0,
             centerTitle: true,
           ),
@@ -49,7 +66,7 @@ class _HerramientasScreenState extends State<HerramientasScreen> {
           Container(
             width: double.infinity,
             height: screenHeight,
-            color: Color(0xFF00136D),
+            color: _isDarkMode ? Colors.black : Color(0xFF00136D),
           ),
           Column(
             children: [
@@ -58,13 +75,13 @@ class _HerramientasScreenState extends State<HerramientasScreen> {
                   Container(
                     height: screenHeight * 0.4,
                     width: double.infinity,
-                    color: Colors.white,
+                    color: _isDarkMode ? Colors.grey[900] : Colors.white,
                   ),
                   Container(
                     height: screenHeight * 0.4,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Color(0xFF00136D),
+                      color: _isDarkMode ? Colors.black : Color(0xFF00136D),
                       borderRadius: BorderRadius.only(
                         bottomRight: Radius.circular(70),
                       ),
@@ -111,7 +128,7 @@ class _HerramientasScreenState extends State<HerramientasScreen> {
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: _isDarkMode ? Colors.grey[900] : Colors.white,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(70),
                     ),
@@ -123,22 +140,23 @@ class _HerramientasScreenState extends State<HerramientasScreen> {
                         _buildToolItem(
                           title: 'Código de Colores',
                           icon: Icons.palette,
-                          iconColor: Colors.blue,
-                          backgroundColor: Colors.blue.shade50,
+                          iconColor: _isDarkMode ? Colors.black : Colors.blue,
+                          backgroundColor:  _isDarkMode ? const Color(0xFF616161) : Colors.blue.shade50,
                           targetScreen: CodigoColoresScreen(),
+                          
                         ),
                         _buildToolItem(
                           title: 'Cálculo Óptico',
                           icon: Icons.calculate,
-                          iconColor: Colors.green,
-                          backgroundColor: Colors.green.shade50,
+                          iconColor: _isDarkMode ? Colors.black : Colors.green,
+                          backgroundColor: _isDarkMode ? const Color(0xFF616161) : Colors.green.shade50,
                           targetScreen: CalculoOpticoScreen(),
                         ),
                         _buildToolItem(
                           title: 'GeoAxion',
                           icon: Icons.map,
-                          iconColor: Colors.red,
-                          backgroundColor: Colors.red.shade50,
+                          iconColor: _isDarkMode ? Colors.black : Colors.red,
+                          backgroundColor: _isDarkMode ? const Color(0xFF616161) : Colors.red.shade50,
                           targetScreen: GeoAxionScreen(),
                         ),
                       ],
@@ -198,7 +216,7 @@ class _HerramientasScreenState extends State<HerramientasScreen> {
                 style: GoogleFonts.poppins(
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
-                  color: Colors.black,
+                  color: _isDarkMode ? Colors.white : Colors.black,
                 ),
               ),
             ),

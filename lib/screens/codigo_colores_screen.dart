@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CodigoColoresScreen extends StatefulWidget {
   @override
@@ -7,6 +8,20 @@ class CodigoColoresScreen extends StatefulWidget {
 }
 
 class _CodigoColoresScreenState extends State<CodigoColoresScreen> {
+late bool _isDarkMode;
+
+  @override
+  void initState() {
+  _getDarkModePreference().then((value) {
+    setState(() {
+      _isDarkMode = value;
+    });
+  });
+  }
+Future<bool> _getDarkModePreference() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getBool('dark_mode') ?? false;
+}
 @override
 Widget build(BuildContext context) {
   return Scaffold(
@@ -14,7 +29,7 @@ Widget build(BuildContext context) {
         preferredSize: Size.fromHeight(kToolbarHeight),
         child: Container(
           padding: EdgeInsets.only(top: 30),
-          color: Color(0xFF004CFF),
+          color: _isDarkMode ? Colors.black : Color(0xFF004CFF),
           child: AppBar(
             leading: IconButton(
               icon: Icon(Icons.arrow_back, color: Colors.white),
@@ -23,13 +38,13 @@ Widget build(BuildContext context) {
               },
             ),
             title: Text("Código de Colores", style: TextStyle(color: Colors.white, fontSize: 20)),
-            backgroundColor: Color(0xFF004CFF),
+            backgroundColor: _isDarkMode ? Colors.black : Color(0xFF004CFF),
             elevation: 0,
             centerTitle: true,
           ),
         ),
       ),
-    backgroundColor: Color(0xFF004CFF), // Fondo del Scaffold igual al color del encabezado
+    backgroundColor: _isDarkMode ? Colors.black : Color(0xFF004CFF), // Fondo del Scaffold igual al color del encabezado
     body: Column(
       children: [
         // Encabezado sin bordes redondeados
@@ -38,7 +53,7 @@ Widget build(BuildContext context) {
           width: double.infinity,
           padding: EdgeInsets.symmetric(horizontal: 35),
           decoration: BoxDecoration(
-            color: Color(0xFF004CFF), // Color sólido sin bordes
+            color: _isDarkMode ? Colors.black : Color(0xFF004CFF), // Color sólido sin bordes
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -98,7 +113,7 @@ Widget build(BuildContext context) {
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: _isDarkMode ? Colors.grey[900] : Colors.white,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(50), // Bordes superiores redondeados
                 topRight: Radius.circular(50),
@@ -135,7 +150,7 @@ Widget _buildListItem(BuildContext context, String title, Widget targetScreen) {
       margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12.0),
-        color: Color(0xFFE0F2FE),
+        color: _isDarkMode ? Colors.grey[700] : Color(0xFFE0F2FE),
       ),
       child: Row(
         children: [
@@ -144,7 +159,7 @@ Widget _buildListItem(BuildContext context, String title, Widget targetScreen) {
             width: 70,
             height: 70,
             decoration: BoxDecoration(
-              color: Color(0xFFA1BEF5),
+              color: _isDarkMode ? Colors.grey[800] : Color(0xFFA1BEF5),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(12.0),
                 bottomLeft: Radius.circular(12.0),
@@ -153,7 +168,7 @@ Widget _buildListItem(BuildContext context, String title, Widget targetScreen) {
             child: Center(
               child: Icon(
                 Icons.image,
-                color: Color(0xFF123AA0),
+                color: _isDarkMode ? Colors.white : Color(0xFF123AA0),
                 size: 30,
               ),
             ),
@@ -169,7 +184,7 @@ Widget _buildListItem(BuildContext context, String title, Widget targetScreen) {
                 title,
                 style: TextStyle(
                   fontWeight: FontWeight.w400,
-                  color: Colors.black,
+                  color: _isDarkMode ? Colors.white : Colors.black,
                   fontSize: 16,
                 ),
               ),
@@ -181,7 +196,7 @@ Widget _buildListItem(BuildContext context, String title, Widget targetScreen) {
             padding: EdgeInsets.only(right: 16.0),
             child: Icon(
               Icons.arrow_forward_ios,
-              color: Color(0xFF000012),
+              color: _isDarkMode ? Colors.white : Color(0xFF000012),
               size: 20,
             ),
           ),

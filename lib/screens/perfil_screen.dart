@@ -4,6 +4,7 @@ import 'package:axion_app/models/user.dart';
 import 'package:axion_app/services/api_service.dart';
 import 'package:axion_app/screens/editar_perfil_screen.dart';
 import 'package:axion_app/screens/editar_contrasena_screen.dart';
+import 'package:axion_app/widgets/loading_widget.dart';
 
 class PerfilScreen extends StatefulWidget {
   @override
@@ -13,13 +14,20 @@ class PerfilScreen extends StatefulWidget {
 class _PerfilScreenState extends State<PerfilScreen> {
   User? _user;
   bool _isPasswordVisible = false; // Estado para controlar la visibilidad
+  bool _isDarkMode = false;
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    _getDarkModePreference();
   }
-
+  Future<void> _getDarkModePreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isDarkMode = prefs.getBool('dark_mode') ?? false;
+    });
+  }
   // Cargar datos del usuario desde SharedPreferences
 void _loadUserData() async {
   final apiService = ApiService();
@@ -47,21 +55,21 @@ Widget build(BuildContext context) {
       preferredSize: Size.fromHeight(kToolbarHeight), // Mantiene la altura estándar
       child: Container(
         padding: EdgeInsets.only(top: 25), // 🔹 Agrega el espacio superior
-        color: Colors.white, // Asegura que el fondo sea blanco
+        color: _isDarkMode ? Colors.black : Colors.white, // Asegura que el fondo sea blanco
         child: AppBar(
           title: Text("Perfil"),
-          backgroundColor: Colors.white,
+          backgroundColor: _isDarkMode ? Colors.black : Colors.white,
           elevation: 0,
           centerTitle: true,
         ),
       ),
     ),
 
-    backgroundColor: Colors.white, // Fondo del Scaffold en blanco
+    backgroundColor: _isDarkMode ? Colors.black : Colors.white, // Fondo del Scaffold en blanco
     body: Padding(
       padding: const EdgeInsets.only(top: 40.0, right: 20.0, bottom: 20.0, left: 20.0),
       child: _user == null
-          ? Center(child: CircularProgressIndicator()) // Muestra cargando si no hay datos
+          ? Center(child: LoadingWidget(animationPath: 'assets/icons/mano.json')) // Muestra cargando si no hay datos
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -79,11 +87,11 @@ Widget build(BuildContext context) {
                       children: [
                         Text(
                           "${_user!.usuario}",
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _isDarkMode ? Colors.white : Colors.black),
                         ),
                         Text(
                           "Usuario",
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                          style: TextStyle(fontSize: 16, color: _isDarkMode ? Colors.white : Colors.grey),
                         ),
                       ],
                     ),
@@ -176,19 +184,19 @@ Widget _buildInfoField(String label, String value, IconData icon) {
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _isDarkMode ? Colors.white : Colors.black),
         ),
         SizedBox(height: 5),
         Container(
           width: double.infinity,
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10), // 🔹 Mismo padding en todos
           decoration: BoxDecoration(
-            color: Color(0xFFF1F6FB),
+            color: _isDarkMode ? const Color.fromARGB(255, 100, 100, 100) : Color(0xFFF1F6FB),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
             children: [
-              Icon(icon, color: Colors.grey), // 📌 Ícono a la izquierda
+              Icon(icon, color: _isDarkMode ? const Color.fromARGB(255, 116, 116, 116) : Colors.grey), // 📌 Ícono a la izquierda
               SizedBox(width: 10),
               Expanded(
                 child: Text(
@@ -220,7 +228,7 @@ Widget _buildPasswordField(String label, String value) {
           width: double.infinity,
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10), // 🔹 Mismo padding
           decoration: BoxDecoration(
-            color: Color(0xFFF1F6FB),
+            color: _isDarkMode ? const Color.fromARGB(255, 100, 100, 100) : Color(0xFFF1F6FB),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(

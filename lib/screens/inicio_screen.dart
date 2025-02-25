@@ -11,12 +11,12 @@ import 'package:axion_app/screens/calculo_potencia_screen.dart';
 import 'package:axion_app/screens/codigo_colores_screen.dart';
 import 'package:axion_app/screens/perfil_screen.dart';
 import 'package:axion_app/screens/geoaxion_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class InicioScreen extends StatefulWidget {
   final Function(bool) toggleTheme;
   final bool isDarkMode;
   
-
   InicioScreen({required this.toggleTheme, required this.isDarkMode});
   @override
   _InicioScreenState createState() => _InicioScreenState();
@@ -30,9 +30,6 @@ class _InicioScreenState extends State<InicioScreen> {
   List<String> _searchResults = [];
   OverlayEntry? _overlayEntry;
   final LayerLink _layerLink = LayerLink();
-
-
-
   User? _user; // Variable para almacenar el usuario
   String userName = "Usuario"; // Aquí debes reemplazar con el nombre del usuario logueado
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>(); // Clave para controlar el Scaffold
@@ -44,10 +41,10 @@ class _InicioScreenState extends State<InicioScreen> {
     Color(0xFF0083F7), Colors.red, Colors.orange, Colors.green,
   ];
   final List<String> _descriptions = [
-    "Sumérgete en el mundo de las telecomunicaciones con información sobre fibra óptica",
-    "Herramientas avanzadas para desarrollar y gestionar proyectos tecnológicos en telecomunicaciones.",
-    "Genera y visualiza reportes detallados sobre el rendimiento de tus proyectos.",
-    "Conéctate con la comunidad y comparte tus proyectos con otros profesionales del área.",
+    "Aprende más sobre la fibra óptica",
+    "Desarrollar y gestionar proyectos",
+    "Crea y visualiza reportes detallados",
+    "Conversa con los mejores en el rubro",
   ];
   final List<IconData> _iconList = [
   Icons.book,
@@ -55,9 +52,6 @@ class _InicioScreenState extends State<InicioScreen> {
   Icons.report,
   Icons.group,
 ];
-
-
-
   // Controlador del PageView con viewportFraction para ajustar el ancho de cada página
   final PageController _pageController = PageController(viewportFraction: 0.85); // Establecer a 1.0
   // Controlador de desplazamiento para la fila de iconos
@@ -67,10 +61,15 @@ class _InicioScreenState extends State<InicioScreen> {
     _scrollController.dispose(); // Limpia el controlador cuando ya no se necesite
     super.dispose();
   }
-    @override
+  @override
   void initState() {
     super.initState();
     _loadUserData(); // Cargar datos al iniciar la pantalla
+      _getDarkModePreference().then((value) {
+    setState(() {
+      _isDarkMode = value;
+    });
+  });
     _isDarkMode = widget.isDarkMode;
         _screenMap = {
       "Aprendizaje": HomeScreen(toggleTheme: widget.toggleTheme, isDarkMode: widget.isDarkMode),
@@ -89,7 +88,6 @@ class _InicioScreenState extends State<InicioScreen> {
       ComunidadScreen(),
     ];
   }
-
   void _changeTheme(bool value) {
     setState(() {
       _isDarkMode = value;
@@ -125,8 +123,6 @@ void _updateSearchResults(String query) {
       .where((title) => title.toLowerCase().contains(query.toLowerCase()))
       .toList();
 
-  print("📌 Sugerencias encontradas: $filteredResults"); // Debug
-
   setState(() {
     _searchResults = filteredResults;
   });
@@ -139,8 +135,6 @@ void _updateSearchResults(String query) {
   }
 }
 
-
-
 void _navigateToScreen(String selectedTitle) {
   if (_screenMap.containsKey(selectedTitle)) {
     Navigator.push(
@@ -151,7 +145,10 @@ void _navigateToScreen(String selectedTitle) {
     print("⚠️ No se encontró la pantalla para '$selectedTitle'");
   }
 }
-
+Future<bool> _getDarkModePreference() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getBool('dark_mode') ?? false;
+}
 
 void _showOverlay() {
   _overlayEntry?.remove();
@@ -192,22 +189,19 @@ void _showOverlay() {
       ),
     ),
   );
-
   Overlay.of(context).insert(_overlayEntry!);
 }
-
 @override
 Widget build(BuildContext context) {
   double screenWidth = MediaQuery.of(context).size.width;
   double sliderWidth = screenWidth * 0.80;
-
   return Scaffold(
     key: _scaffoldKey,
     drawer: CustomDrawer(
       toggleTheme: widget.toggleTheme,
       isDarkMode: widget.isDarkMode,
     ),
-    backgroundColor: widget.isDarkMode ? Colors.black : Colors.white,
+    backgroundColor: widget.isDarkMode ? Colors.grey[900] : Colors.white,
     body: Column(
       children: [
         // Cabecera fija
@@ -215,7 +209,7 @@ Widget build(BuildContext context) {
           height: 250,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: widget.isDarkMode ? Colors.grey[900] : Color(0xFF0B3A90),
+            color: widget.isDarkMode ? Colors.black : Color(0xFF0B3A90),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
@@ -243,12 +237,15 @@ Widget build(BuildContext context) {
                     ),
                     GestureDetector(
                       onTap: () {
-                        print('Imagen de perfil presionada');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => PerfilScreen()),
+                        );
                       },
                       child: Container(
                         padding: EdgeInsets.all(9),
                         decoration: BoxDecoration(
-                          color: widget.isDarkMode ? Colors.grey[700] : Colors.white,
+                          color: widget.isDarkMode ? Colors.white : Colors.white,
                           shape: BoxShape.circle,
                         ),
                         child: Image.asset(
@@ -306,6 +303,7 @@ Widget build(BuildContext context) {
                     ),
                     child: TextField(
                       controller: _searchController,
+                      cursorColor: Colors.black, // 🔥 Ahora el cursor será negro
                       onChanged: (query) {
                         print("🔍 Buscando: $query"); // Debug
                         _updateSearchResults(query);
@@ -318,6 +316,7 @@ Widget build(BuildContext context) {
                     ),
                   ),
                 ),
+
               ],
             ),
           ),
@@ -327,253 +326,142 @@ Widget build(BuildContext context) {
           child: SingleChildScrollView(
             child: Column(
               children: [
+
                 SizedBox(height: 10),
-                // Íconos en la parte superior
-                Container(
-                  height: 100,
-                  width: double.infinity,
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _titles.length,
-                    physics: BouncingScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      bool isActive = _selectedIndex == index;
-
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedIndex = index;
-                          });
-
-                          // 🔹 Desplazamiento dinámico para centrar el icono activo y ver solo 2
-                          double screenWidth = MediaQuery.of(context).size.width;
-                          double itemWidth = screenWidth / 2; // 2 elementos por pantalla
-                          double scrollTo = (index * itemWidth) - (screenWidth / 2) + (itemWidth / 2);
-
-                          _scrollController.animateTo(
-                            scrollTo.clamp(0.0, _scrollController.position.maxScrollExtent),
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
-
-                          _pageController.jumpToPage(index);
-                        },
-                        child: AnimatedContainer(
-                          duration: Duration(milliseconds: 300),
-                          width: MediaQuery.of(context).size.width / 2, // Mostrar solo 2 íconos en pantalla
-                          margin: EdgeInsets.symmetric(horizontal: 5),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: isActive ? 70 : 60,
-                                height: isActive ? 70 : 60,
-                                decoration: BoxDecoration(
-                                  color: _iconColors[index],
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    _iconList[index],
-                                    color: Colors.white,
-                                    size: isActive ? 34 : 28,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: 5),
-                              Text(
-                                _titles[index],
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: _iconColors[index],
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: isActive ? 16 : 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
+                // // Título "NUESTRAS CATEGORÍAS"
+                // Padding(
+                //   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                //   child: Align(
+                //     alignment: Alignment.centerLeft,
+                //     child: Text(
+                //       "NUESTRAS CATEGORÍAS",
+                //       style: TextStyle(
+                //         fontSize: 18,
+                //         fontWeight: FontWeight.bold,
+                //         color: widget.isDarkMode ? Colors.white : Colors.black,
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+  child: GridView.builder(
+    shrinkWrap: true,
+    physics: NeverScrollableScrollPhysics(),
+    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2, // 🔹 2 columnas
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 0.6, // 🔹 Más alto
+    ),
+    itemCount: _titles.length,
+    itemBuilder: (context, index) {
+      return GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => _screens[index]),
+          );
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            image: DecorationImage(
+              image: AssetImage('assets/images/slider_image${index + 1}.png'),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: Stack(
+            children: [
+              // 🔹 Ícono en la parte superior
+              Positioned(
+                top: 15,
+                left: 15,
+                child: Container(
+                  width: 45,
+                  height: 45,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    _iconList[index],
+                    color: Colors.blue,
+                    size: 20,
                   ),
                 ),
+              ),
 
-                SizedBox(height: 10),
-                // Título "NUESTRAS CATEGORÍAS"
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "NUESTRAS CATEGORÍAS",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
+              // 🔹 Fondo desenfocado con botón y descripción
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
+                  ),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+                    child: Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start, // 🔹 Alineado a la izquierda
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // 🔹 Botón con el nombre de la tarjeta
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => _screens[index]),
+                              );
+                            },
+                            child: Text(
+                              _titles[index], // 🔹 Texto dinámico con el nombre de la tarjeta
+                              style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.normal),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                            ),
+                          ),
+                          SizedBox(height: 10),
+
+                          // 🔹 Descripción debajo del botón
+                          Text(
+                            _descriptions[index],
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ),
-                SizedBox(height: 10),
-                // Slider
-                Container(
-                  height: 400,
-                  child: PageView.builder(
-                    controller: _pageController,
-                    onPageChanged: (index) {
-                      setState(() {
-                        _selectedIndex = index;
-                      });
-
-                      // 🔹 Asegurar que el ícono activo SIEMPRE sea visible
-                      double itemWidth = 150; // Estimación del ancho de cada ícono
-                      double screenWidth = MediaQuery.of(context).size.width;
-                      double scrollTo = (index * itemWidth) - (screenWidth / 2) + (itemWidth / 2);
-
-                      // 🔹 Evita que el scroll pase el máximo disponible
-                      _scrollController.animateTo(
-                        scrollTo.clamp(0.0, _scrollController.position.maxScrollExtent),
-                        duration: Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
-                    },
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  ),
+),
 
 
-                    itemCount: _titles.length,
-                    itemBuilder: (context, index) {
-                    bool isActive = _selectedIndex == index;
-
-                    double width = isActive ? 300 : 230;  // Reducimos más los inactivos
-                    double height = isActive ? 500 : 280; // Misma lógica con la altura
-                    double opacity = isActive ? 1.0 : 0.6; // Baja opacidad para inactivos
-                    double marginRight = isActive ? 20 : 0; // Mantiene espacio entre slides
-
-                    return Align(
-                      alignment: Alignment.centerLeft, // Alinea el slider activo a la izquierda
-                      child: AnimatedContainer(
-                        duration: Duration(milliseconds: 300),
-                        curve: Curves.easeOut, // Suaviza la animación
-                        width: width,
-                        height: height,
-                        margin: EdgeInsets.only(right: marginRight), // Espaciado solo en el activo
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Opacity(
-                          opacity: opacity, // Opacidad para sliders inactivos
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Stack(
-                              children: [
-                                // Imagen de fondo
-                                Container(
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage('assets/images/slider_image${index + 1}.png'),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                // Efecto de desenfoque en la parte inferior
-                                Positioned(
-                                  bottom: 0,
-                                  left: 0,
-                                  right: 0,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.only(
-                                      bottomLeft: Radius.circular(20),
-                                      bottomRight: Radius.circular(20),
-                                    ),
-                                    child: BackdropFilter(
-                                      filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                                      child: Container(
-                                        height: 150,
-                                        decoration: BoxDecoration(
-                                          color: Colors.black.withOpacity(0.5),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                // Contenido sobre la imagen
-                                Positioned(
-                                  bottom: 10,
-                                  left: 20,
-                                  right: 20,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(builder: (context) => _screens[index]),
-                                              );
-                                            },
-                                            child: Text(
-                                              _titles[index],
-                                              style: TextStyle(color: Colors.white),
-                                            ),
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.blue,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(12),
-                                              ),
-                                              padding: EdgeInsets.symmetric(vertical: 18, horizontal: 12),
-                                            ),
-                                          ),
-                                          SizedBox(width: 10),
-                                          Container(
-                                            width: 50,
-                                            height: 50,
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.circular(25),
-                                            ),
-                                            child: Icon(
-                                              _iconList[index],
-                                              color: Colors.blue,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 10),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                                        child: Text(
-                                          _descriptions[index],
-                                          textAlign: TextAlign.start,
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w400,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  }
-
-
-
-                  ),
-                ),
                 SizedBox(height: 20),
               ],
             ),
@@ -583,5 +471,4 @@ Widget build(BuildContext context) {
     ),
   );
 }
-
 }

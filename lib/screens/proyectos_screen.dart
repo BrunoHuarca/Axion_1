@@ -1,40 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ProyectsScreen extends StatelessWidget {
+class ProyectsScreen extends StatefulWidget {
+  @override
+  _ProyectsScreenState createState() => _ProyectsScreenState();
+}
 
-@override
+class _ProyectsScreenState extends State<ProyectsScreen> {
+  bool _isDarkMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _getDarkModePreference();
+  }
+
+  Future<void> _getDarkModePreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isDarkMode = prefs.getBool('dark_mode') ?? false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(kToolbarHeight), // Mantiene la altura estándar
+        preferredSize: Size.fromHeight(kToolbarHeight),
         child: Container(
-          padding: EdgeInsets.only(top: 25), // 🔹 Agrega el espacio superior
-          color: Colors.white, // Asegura que el fondo sea blanco
+          padding: EdgeInsets.only(top: 25),
+          color: _isDarkMode ? Colors.black : Colors.white,
           child: AppBar(
             title: Text("Reportes"),
-            backgroundColor: Colors.white,
+            backgroundColor: _isDarkMode ? Colors.black : Colors.white,
             elevation: 0,
             centerTitle: true,
           ),
         ),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: _isDarkMode ? Colors.black : Colors.white,
       body: Stack(
         children: [
-          // Imagen de fondo alineada abajo
           Align(
             alignment: Alignment.bottomCenter,
             child: Image.asset(
-              'assets/images/fondomp.png', // Asegúrate de tener esta imagen en tu proyecto
+              'assets/images/fondomp.png',
               width: double.infinity,
               fit: BoxFit.cover,
             ),
           ),
-          // Contenido centrado
-          // Contenido centrado y un poco más arriba
           Positioned(
-            top: MediaQuery.of(context).size.height * 0.15, // Ajusta la altura
+            top: MediaQuery.of(context).size.height * 0.15,
             left: 20,
             right: 20,
             child: Column(
@@ -44,8 +61,8 @@ class ProyectsScreen extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontSize: 40,
-                    fontWeight: FontWeight.w900, // Peso 900
-                    color: Color(0xFF001520), // Color del título
+                    fontWeight: FontWeight.w900,
+                    color: _isDarkMode ? Colors.white : Color(0xFF001520),
                   ),
                 ),
                 SizedBox(height: 10),
@@ -54,8 +71,8 @@ class ProyectsScreen extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: GoogleFonts.inter(
                     fontSize: 20,
-                    fontWeight: FontWeight.w400, // Peso 400
-                    color: Color(0xFF023047), // Color del texto de abajo
+                    fontWeight: FontWeight.w400,
+                    color: _isDarkMode ? Colors.white : Color(0xFF023047),
                   ),
                 ),
               ],

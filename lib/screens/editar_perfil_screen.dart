@@ -1,11 +1,9 @@
-import 'dart:convert';
-import 'dart:io'; 
-import 'dart:typed_data';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // Para detectar si es Web
-import 'package:image_picker/image_picker.dart';
 import 'package:axion_app/models/user.dart';
 import 'package:axion_app/services/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditarPerfilScreen extends StatefulWidget {
   final User user;
@@ -17,11 +15,12 @@ class EditarPerfilScreen extends StatefulWidget {
 }
 
 class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
+  bool _isDarkMode = false;
   final _formKey = GlobalKey<FormState>();
   late TextEditingController usuarioController;
   late TextEditingController emailController;
   late TextEditingController celularController;
-  String? _fotoPerfil; 
+  String? _fotoPerfil;
 
   final ApiService apiService = ApiService();
   File? _imageFile;
@@ -36,6 +35,14 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
     emailController = TextEditingController(text: widget.user.email);
     celularController = TextEditingController(text: widget.user.celular);
     _cargarFotoPerfil();
+    _getDarkModePreference();
+  }
+
+  Future<void> _getDarkModePreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isDarkMode = prefs.getBool('dark_mode') ?? false;
+    });
   }
 
   Future<void> _cargarUserId() async {
@@ -64,34 +71,6 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
     }
   }
 
-  Future<void> _seleccionarImagen(int userId) async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      if (kIsWeb) {
-        // 🌐 Código para Web
-        final bytes = await pickedFile.readAsBytes();
-        _base64Image = base64Encode(bytes);
-      } else {
-        // 📱 Código para Android/iOS
-        File imageFile = File(pickedFile.path);
-        String? imageUrl = await ApiService().subirImagen(imageFile, userId);
-
-        if (imageUrl != null) {
-          print("✅ Imagen actualizada correctamente: $imageUrl");
-          setState(() {
-            _fotoPerfil = imageUrl;
-          });
-        } else {
-          print("❌ Error al actualizar la imagen.");
-        }
-      }
-    } else {
-      print("⚠️ No se seleccionó ninguna imagen.");
-    }
-  }
-
   Future<void> _guardarCambios() async {
     if (_formKey.currentState!.validate()) {
       User usuarioActualizado = User(
@@ -99,7 +78,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
         usuario: usuarioController.text,
         email: emailController.text,
         celular: celularController.text,
-        imagenBase64: _base64Image, 
+        imagenBase64: _base64Image,
       );
 
       bool actualizado = await apiService.actualizarUsuario(usuarioActualizado);
@@ -120,17 +99,21 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _isDarkMode ? Colors.black : Colors.white,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(kToolbarHeight),
         child: Container(
           padding: EdgeInsets.only(top: 25),
-          color: Colors.white,
+          color: _isDarkMode ? Colors.black : Colors.white,
           child: AppBar(
-            title: Text("Editar Perfil"),
-            backgroundColor: Colors.white,
+            title: Text(
+              "Editar Perfil",
+              style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black),
+            ),
+            backgroundColor: _isDarkMode ? Colors.black : Colors.white,
             elevation: 0,
             centerTitle: true,
+            iconTheme: IconThemeData(color: _isDarkMode ? Colors.white : Colors.black),
           ),
         ),
       ),
@@ -147,27 +130,27 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                     children: [
                       Text(
                         "Completa tu Perfil",
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: _isDarkMode ? Colors.white : Colors.black,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 5),
                       Text(
                         "No te preocupes, sólo tú puedes ver tus datos personales. Nadie más podrá verlos.",
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: _isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 20),
                       GestureDetector(
-                        // onTap: () {
-                        //   if (userId != null) {
-                        //     _seleccionarImagen(userId!);
-                        //   } else {
-                        //     print("⚠️ Error: userId no está disponible.");
-                        //   }
-                        // },
                         child: CircleAvatar(
                           radius: 50,
-                          backgroundColor: Colors.grey[300],
+                          backgroundColor: _isDarkMode ? Colors.grey[800] : Colors.grey[300],
                           backgroundImage: _fotoPerfil != null
                               ? NetworkImage(_fotoPerfil!)
                               : AssetImage("assets/images/usuarioaxion.png") as ImageProvider,
@@ -177,18 +160,16 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                     ],
                   ),
                 ),
-
                 _buildTextField("Usuario", usuarioController, Icons.person),
                 _buildTextField("Email", emailController, Icons.email),
                 _buildTextField("Celular", celularController, Icons.phone),
                 SizedBox(height: 30),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildActionButton(Icons.check, Colors.white, _guardarCambios),
+                    _buildActionButton(Icons.check, _isDarkMode ? Colors.grey[800]! : Colors.white, _guardarCambios),
                     SizedBox(width: 20),
-                    _buildActionButton(Icons.close, Colors.white, () {
+                    _buildActionButton(Icons.close, _isDarkMode ? Colors.grey[800]! : Colors.white, () {
                       Navigator.pop(context);
                     }),
                   ],
@@ -209,18 +190,23 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
         children: [
           Text(
             label,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: _isDarkMode ? Colors.white : Colors.black,
+            ),
           ),
           SizedBox(height: 5),
           Container(
             decoration: BoxDecoration(
-              color: Color(0xFFF1F6FB),
+              color: _isDarkMode ? Colors.grey[800] : Color(0xFFF1F6FB),
               borderRadius: BorderRadius.circular(10),
             ),
             child: TextFormField(
               controller: controller,
+              style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black),
               decoration: InputDecoration(
-                prefixIcon: Icon(icon, color: Colors.blueGrey),
+                prefixIcon: Icon(icon, color: _isDarkMode ? Colors.white70 : Colors.blueGrey),
                 contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
                 border: InputBorder.none,
               ),
@@ -240,15 +226,11 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
         shape: BoxShape.circle,
         color: color,
         boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 10,
-            offset: Offset(2, 2),
-          ),
+          BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(2, 2)),
         ],
       ),
       child: IconButton(
-        icon: Icon(icon, color: Colors.black, size: 28),
+        icon: Icon(icon, color: _isDarkMode ? Colors.white : Colors.black, size: 28),
         onPressed: onPressed,
       ),
     );

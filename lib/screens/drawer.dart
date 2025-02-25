@@ -12,7 +12,7 @@ import 'package:flutter/cupertino.dart';
 
 
 class CustomDrawer extends StatefulWidget {
-    final Function(bool) toggleTheme;
+  final Function(bool) toggleTheme;
   final bool isDarkMode;
 
   CustomDrawer({required this.toggleTheme, required this.isDarkMode});
@@ -41,17 +41,14 @@ class _CustomDrawerState extends State<CustomDrawer> {
   }
 
 
-  void _toggleDarkMode(bool value) async {
+void _toggleDarkMode(bool value) async {
   final prefs = await SharedPreferences.getInstance();
+  await prefs.setBool('dark_mode', value); // Guarda la preferencia
   setState(() {
     _isDarkMode = value;
-    prefs.setBool('dark_mode', value);
   });
-
-  widget.toggleTheme(value); // 🔥 Llamamos a la función para cambiar el tema globalmente
+  widget.toggleTheme(value); // Asegura que el tema cambia en toda la app
 }
-
-
 
 
   Widget _buildIcon(IconData icon, Color color) {
@@ -243,7 +240,9 @@ void _showLogoutDialog(BuildContext context) {
                     trailing: Icon(Icons.arrow_forward_ios, color: _isDarkMode ? Colors.white : Colors.black),
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen(toggleTheme: widget.toggleTheme, isDarkMode: widget.isDarkMode))),
                   ),
-                  SizedBox(height: 15),
+                  SizedBox(height: 7),
+                  Divider(color: const Color.fromARGB(255, 196, 196, 196), thickness: 1, indent: 20, endIndent: 20), // 🔹 Línea separadora
+                  SizedBox(height: 7),                  
                   ListTile(
                     leading: _buildIcon(Icons.calculate, Colors.orangeAccent),
                     title: Text('Cálculo Óptico', style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black)),
@@ -263,25 +262,24 @@ void _showLogoutDialog(BuildContext context) {
                     title: Text('GeoAxion', style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black)),
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => GeoAxionScreen())),
                   ),
-                  SizedBox(height: 15),
+                  SizedBox(height: 7),
+                  Divider(color: const Color.fromARGB(255, 196, 196, 196), thickness: 1, indent: 20, endIndent: 20), // 🔹 Línea separadora
+                  SizedBox(height: 7),     
                   ListTile(
                     leading: _buildIcon(Icons.report, Colors.purple),
                     title: Text('Generar Reporte', style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black)),
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProyectsScreen())),
                   ),
-                  SizedBox(height: 15),
+                  SizedBox(height: 7),
+                  Divider(color: const Color.fromARGB(255, 196, 196, 196), thickness: 1, indent: 20, endIndent: 20), // 🔹 Línea separadora
+                  SizedBox(height: 7),     
                   ListTile(
                     leading: _buildIcon(Icons.people, Colors.deepOrange),
                     title: Text('Comunidad', style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black)),
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ComunidadScreen())),
                   ),
                   SizedBox(height: 15),
-                  // ListTile(
-                  //   leading: Icon(Icons.person, color: _isDarkMode ? Colors.white : Colors.black),
-                  //   title: Text('Perfil', style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black)),
-                  //   trailing: Icon(Icons.arrow_forward_ios, color: _isDarkMode ? Colors.white : Colors.black),
-                  //   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => PerfilScreen())),
-                  // ),
+
                   Center(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(

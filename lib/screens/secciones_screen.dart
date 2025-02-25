@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:axion_app/services/api_service.dart';
 import 'package:axion_app/models/section.dart';
 import 'documentos_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:axion_app/widgets/loading_widget.dart';
 
 class SeccionesScreen extends StatefulWidget {
   final int categoriaId;
@@ -14,124 +17,259 @@ class SeccionesScreen extends StatefulWidget {
 }
 
 class _SeccionesScreenState extends State<SeccionesScreen> {
+  bool isGridView = false;
+  late bool _isDarkMode;
+
+void initState() {
+  super.initState();
+  _getDarkModePreference().then((value) {
+    setState(() {
+      _isDarkMode = value;
+    });
+  });
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(kToolbarHeight + 40), // Aumenta la altura
+          child: Container(
+            padding: EdgeInsets.only(top: 30), // Más espacio arriba y abajo
+            color: _isDarkMode ? Colors.black : Colors.white,
+            child: AppBar(
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: _isDarkMode ? Colors.white : Colors.black, size: 26), // Aumenta el tamaño del icono si es necesario
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              title: Text(
+                widget.categoriaNombre, // Muestra el nombre de la categoría
+                style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black, fontSize: 20),
+              ),
+              backgroundColor: _isDarkMode ? Colors.black : Colors.white,
+              elevation: 0,
+              centerTitle: true,
+            ),
+          ),
+        ),
+
+
       body: Column(
         children: [
-          // Encabezado
           Container(
-            height: MediaQuery.of(context).size.height * 0.3,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Color(0xFF00001B),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(0),
-                bottomRight: Radius.circular(100),
-              ),
-            ),
-            child: Stack(
+            color: _isDarkMode ? Colors.black : Colors.white, // Fondo blanco
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Positioned(
-                  top: 40,
-                  left: 20,
-                  child: IconButton(
-                    icon: Icon(Icons.arrow_back, color: Colors.white, size: 28),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
+                FutureBuilder(
+                  future: _fetchSecciones(widget.categoriaId),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Text(
+                        "FOLDERS (...)",
+                        style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
+                      );
+                    }
+                    if (snapshot.hasError) {
+                      return Text(
+                        "FOLDERS (Error)",
+                        style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
+                      );
+                    }
+                    final secciones = snapshot.data as List<Section>;
+                    return Text(
+                      "FOLDERS (${secciones.length.toString().padLeft(2, '0')})",
+                      style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
+                    );
+                  },
                 ),
-                Positioned(
-                  top: 40,
-                  right: 20,
-                  child: Container(
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(50),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.view_list, color: isGridView ? Colors.grey : Colors.blue),
+                      onPressed: () => setState(() => isGridView = false),
                     ),
-                    child: Image.asset(
-                      './assets/images/axionlogo2.png',
-                      height: 50,
-                      width: 50,
+                    IconButton(
+                      icon: Icon(Icons.grid_view, color: isGridView ? Colors.blue : Colors.grey),
+                      onPressed: () => setState(() => isGridView = true),
                     ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 20,
-                  left: 20,
-                  child: Text(
-                    widget.categoriaNombre,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w200,
-                    ),
-                  ),
+                  ],
                 ),
               ],
             ),
           ),
-          SizedBox(height: 10),
 
-          // Lista de secciones
           Expanded(
-            child: FutureBuilder(
-              future: _fetchSecciones(widget.categoriaId),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
-                final secciones = snapshot.data as List<Section>;
-                return ListView.builder(
-                  itemCount: secciones.length,
-                  itemBuilder: (context, index) {
-                    final seccion = secciones[index];
-                    return Card(
-                      color: Color(0xFF0083F7), // Fondo azul
-                      margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                      elevation: 4.0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      child: ListTile(
-                        contentPadding: EdgeInsets.all(16.0),
-                        title: Text(
-                          seccion.nombre,
-                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-                        ),
-                        subtitle: Text(seccion.descripcion, style: TextStyle(color: Colors.white70)),
-                        trailing: Container(
-                          height: 20,
-                          width: 20,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white, width: 1),
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                        ),
-                        onTap: () async {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DocumentosScreen(seccionId: seccion.id),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
-                );
-              },
+            child: Container(
+              decoration: BoxDecoration(color: _isDarkMode ? Colors.black : Colors.white),
+              child: FutureBuilder(
+                future: _fetchSecciones(widget.categoriaId),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: LoadingWidget(animationPath: 'assets/icons/mano.json'));
+                  }
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  final secciones = snapshot.data as List<Section>;
+
+                  return isGridView ? _buildGridView(secciones) : _buildListView(secciones);
+                },
+              ),
             ),
           ),
         ],
       ),
     );
   }
+
+  Widget _buildListView(List<Section> secciones) {
+    return ListView.builder(
+      padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+      itemCount: secciones.length,
+      itemBuilder: (context, index) {
+        return _buildListItem(context, secciones[index]);
+      },
+    );
+  }
+
+  Widget _buildGridView(List<Section> secciones) {
+    return GridView.builder(
+      padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 0.65,
+      ),
+      itemCount: secciones.length,
+      itemBuilder: (context, index) {
+        return _buildGridItem(context, secciones[index]);
+      },
+    );
+  }
+
+  Widget _buildListItem(BuildContext context, Section seccion) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => DocumentosScreen(seccionId: seccion.id, seccionNombre: seccion.nombre)),
+      ),
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 8.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.0),
+          color: _isDarkMode ? Colors.grey[900] : Color(0xFFE0F2FE),
+        ),
+        child: IntrinsicHeight(
+          child: Row(
+            children: [
+              Container(
+                width: 70,
+                decoration: BoxDecoration(
+                  color: _isDarkMode ? const Color.fromARGB(255, 54, 54, 54) : Color(0xFFA1BEF5),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(12.0),
+                    bottomLeft: Radius.circular(12.0),
+                  ),
+                ),
+                child: Center(
+                  child: Icon(Icons.folder, color: _isDarkMode ? Colors.white : Color(0xFF123AA0), size: 30),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 12.0),
+                  child: Text(
+                    seccion.nombre,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontWeight: FontWeight.w400, color: _isDarkMode ? Colors.white : Colors.black, fontSize: 14),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(right: 16.0),
+                child: Icon(Icons.arrow_forward_ios, color: _isDarkMode ? Colors.white : Color(0xFF000012), size: 20),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+Widget _buildGridItem(BuildContext context, Section seccion) {
+  return GestureDetector(
+    onTap: () => Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => DocumentosScreen(seccionId: seccion.id, seccionNombre: seccion.nombre)),
+    ),
+    child: Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.0),
+        color: _isDarkMode ? Colors.grey[900] : Color(0xFFE0F2FE),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: _isDarkMode ? Color.fromARGB(255, 54, 54, 54) : Color(0xFFA1BEF5),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(12.0),
+                topRight: Radius.circular(12.0),
+              ),
+            ),
+            child: Center(
+              child: Icon(Icons.folder, color: _isDarkMode ? Colors.white : Color(0xFF123AA0), size: 90),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(12.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  seccion.nombre,
+                  maxLines: 2, // Máximo 1 línea
+                  overflow: TextOverflow.ellipsis, // Muestra "..."
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    color: _isDarkMode ? Colors.white : Colors.black,
+                    fontSize: 14,
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  seccion.descripcion ?? "Sin descripción",
+                  maxLines: 2, // Máximo 2 líneas antes de truncar
+                  overflow: TextOverflow.ellipsis, // Muestra "..." si se excede
+                  style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    color: _isDarkMode ? Colors.white : Colors.black54,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+
+Future<bool> _getDarkModePreference() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getBool('dark_mode') ?? false;
+}
 
   Future<List<Section>> _fetchSecciones(int categoriaId) async {
     try {

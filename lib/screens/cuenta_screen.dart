@@ -8,6 +8,7 @@ class EditarPerfilScreen extends StatefulWidget {
 }
 
 class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
+  bool _isDarkMode = false;
   final ApiService _apiService = ApiService();
   final _formKey = GlobalKey<FormState>();
 
@@ -24,8 +25,14 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
   void initState() {
     super.initState();
     _loadUserData();
+    _getDarkModePreference();
   }
-
+  Future<void> _getDarkModePreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isDarkMode = prefs.getBool('dark_mode') ?? false;
+    });
+  }
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
