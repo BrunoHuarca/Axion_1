@@ -28,7 +28,7 @@ class _DocumentoWebViewState extends State<DocumentoWebView> {
     _pdfViewerController = PdfViewerController();
     _blockScreenshots();
     _loadPdf();
-  }
+  } 
 
   /// Bloquear capturas de pantalla
   void _blockScreenshots() {
