@@ -5,10 +5,13 @@ import '../models/categoria.dart'; // Importar correctamente el modelo Categoria
 import '../models/section.dart';  // Importar correctamente el modelo Section
 import '../models/user.dart'; // O la ruta correcta a tu archivo User
 import '../models/documento.dart'; // O la ruta correcta a tu archivo Documento
+import '../models/message.dart'; // Importa el modelo del mensaje
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   static const String baseUrl = 'https://api.axioneduca.com/apii'; // Asegúrate de que la URL esté bien
+
+  Function(Message)? onMessageReceived;
 
   // Registrar un usuario
   Future<void> registerUser(User user) async {
@@ -248,6 +251,7 @@ Future<String?> subirImagen(File imagen, int userId) async {
     return null;
   }
 }
+
 
 }
 

@@ -204,15 +204,16 @@ Widget build(BuildContext context) {
     backgroundColor: widget.isDarkMode ? Colors.grey[900] : Colors.white,
     body: Column(
       children: [
+
         // Cabecera fija
         Container(
-          height: 250,
+          height: 220,
           width: double.infinity,
           decoration: BoxDecoration(
             color: widget.isDarkMode ? Colors.black : Color(0xFF0B3A90),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+            padding: const EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 30),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -283,39 +284,39 @@ Widget build(BuildContext context) {
                         ),
                       ],
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        print('Notificaciones presionadas');
-                      },
-                      child: Icon(Icons.notifications, color: Colors.white, size: 30),
-                    ),
+                    // GestureDetector(
+                    //   onTap: () {
+                    //     print('Notificaciones presionadas');
+                    //   },
+                    //   child: Icon(Icons.notifications, color: Colors.white, size: 30),
+                    // ),
                   ],
                 ),
                 SizedBox(height: 15),
-                CompositedTransformTarget(
-                  link: _layerLink,
-                  child: Container(
-                    height: 50,
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: TextField(
-                      controller: _searchController,
-                      cursorColor: Colors.black, // 🔥 Ahora el cursor será negro
-                      onChanged: (query) {
-                        print("🔍 Buscando: $query"); // Debug
-                        _updateSearchResults(query);
-                      },
-                      decoration: InputDecoration(
-                        hintText: "Buscar...",
-                        border: InputBorder.none,
-                        prefixIcon: Icon(Icons.search, color: Colors.grey),
-                      ),
-                    ),
-                  ),
-                ),
+                // CompositedTransformTarget(
+                //   link: _layerLink,
+                //   child: Container(
+                //     height: 50,
+                //     padding: EdgeInsets.symmetric(horizontal: 10),
+                //     decoration: BoxDecoration(
+                //       color: Colors.white,
+                //       borderRadius: BorderRadius.circular(5),
+                //     ),
+                //     child: TextField(
+                //       controller: _searchController,
+                //       cursorColor: Colors.black, // 🔥 Ahora el cursor será negro
+                //       onChanged: (query) {
+                //         print("🔍 Buscando: $query"); // Debug
+                //         _updateSearchResults(query);
+                //       },
+                //       decoration: InputDecoration(
+                //         hintText: "Buscar...",
+                //         border: InputBorder.none,
+                //         prefixIcon: Icon(Icons.search, color: Colors.grey),
+                //       ),
+                //     ),
+                //   ),
+                // ),
 
               ],
             ),
@@ -367,7 +368,7 @@ Widget build(BuildContext context) {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             image: DecorationImage(
-              image: AssetImage('assets/images/slider_image${index + 1}.png'),
+              image: AssetImage('assets/images/slider_image${index + 1}.jpeg'),
               fit: BoxFit.cover,
             ),
           ),

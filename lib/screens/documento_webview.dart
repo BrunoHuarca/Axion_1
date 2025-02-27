@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:axion_app/widgets/loading_widget.dart';
+import 'package:path/path.dart' as path;
 
 class DocumentoWebView extends StatefulWidget {
   final String url;
@@ -26,31 +27,53 @@ class _DocumentoWebViewState extends State<DocumentoWebView> {
     super.initState();
     _pdfViewerController = PdfViewerController();
     _blockScreenshots();
-    _downloadPdf();
+    _loadPdf();
   }
 
   /// Bloquear capturas de pantalla
   void _blockScreenshots() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive); // Oculta UI del sistema
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
   }
 
-  /// Restaurar configuración normal al salir
   @override
   void dispose() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }
 
-  /// Descargar PDF desde la URL
-  Future<void> _downloadPdf() async {
+  /// Cargar PDF, verificando si ya está descargado
+  Future<void> _loadPdf() async {
+    try {
+      final documentDirectory = await getApplicationDocumentsDirectory();
+      final fileName = path.basename(widget.url);
+      final filePath = '${documentDirectory.path}/$fileName';
+      final file = File(filePath);
+
+      if (await file.exists()) {
+        // Si el archivo ya existe, lo usamos directamente
+        setState(() {
+          localFilePath = filePath;
+          isLoading = false;
+        });
+      } else {
+        // Si no existe, lo descargamos y guardamos
+        await _downloadPdf(filePath);
+      }
+    } catch (e) {
+      print("Error al cargar el PDF: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  /// Descargar PDF desde la URL y guardarlo en caché
+  Future<void> _downloadPdf(String filePath) async {
     try {
       final response = await http.get(Uri.parse(widget.url));
       if (response.statusCode == 200) {
-        final documentDirectory = await getApplicationDocumentsDirectory();
-        final filePath = '${documentDirectory.path}/documento.pdf';
         final file = File(filePath);
         await file.writeAsBytes(response.bodyBytes);
-
         setState(() {
           localFilePath = filePath;
           isLoading = false;

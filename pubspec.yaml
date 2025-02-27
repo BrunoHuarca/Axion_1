@@ -84,12 +84,14 @@ flutter:
     - assets/images/axionlogo3.png
     - assets/images/loginfondo.png
     - assets/images/usuarioaxion.png
-    - assets/images/slider_image1.png
-    - assets/images/slider_image2.png
-    - assets/images/slider_image3.png
-    - assets/images/slider_image4.png
+    - assets/images/slider_image1.jpeg
+    - assets/images/slider_image2.jpeg
+    - assets/images/slider_image3.jpeg
+    - assets/images/slider_image4.jpeg
     - assets/images/fondomp.png
     - assets/images/colorescable.png
+    - assets/images/tabla1.jpg
+    - assets/images/tabla2.jpg
     - assets/icons/mano.json
 
   # An image asset can refer to one or more resolution-specific "variants", see

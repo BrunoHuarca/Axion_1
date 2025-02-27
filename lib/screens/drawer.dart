@@ -279,7 +279,12 @@ void _showLogoutDialog(BuildContext context) {
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ComunidadScreen())),
                   ),
                   SizedBox(height: 15),
-
+                  ListTile(
+                    leading: _buildIcon(Icons.people, Colors.deepOrange),
+                    title: Text('Chat', style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black)),
+                    onTap: () => Navigator.pushNamed(context, '/chat'),
+                  ),
+                  SizedBox(height: 15),
                   Center(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(

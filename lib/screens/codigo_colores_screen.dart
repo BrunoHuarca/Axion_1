@@ -122,11 +122,8 @@ Widget build(BuildContext context) {
             child: ListView(
               padding: EdgeInsets.only(top: 25.0, right: 16.0, bottom: 16.0, left: 16.0),
               children: [
-                _buildListItem(context, "Cable 18 hilos", Cable18HilosScreen()),
-                _buildListItem(context, "Cable 14 hilos", Cable14HilosScreen()),
-                _buildListItem(context, "Cable 12 hilos", Cable12HilosScreen()),
-                _buildListItem(context, "Cable 10 hilos", Cable10HilosScreen()),
-                _buildListItem(context, "Cable 8 hilos", Cable8HilosScreen()),
+                _buildListItem(context, "Estandar Europeo", CableeuropeoHilosScreen(_isDarkMode)),
+                _buildListItem(context, "Estandar Americano", CableamericanoHilosScreen(_isDarkMode)),
               ],
             ),
           ),
@@ -210,60 +207,66 @@ Widget _buildListItem(BuildContext context, String title, Widget targetScreen) {
 }
 
 // Diferentes pantallas con imágenes
-class Cable18HilosScreen extends StatelessWidget {
+
+
+class CableeuropeoHilosScreen extends StatelessWidget {
+  final bool isDarkMode;
+  CableeuropeoHilosScreen(this.isDarkMode);
+
   @override
   Widget build(BuildContext context) {
-    return buildDetailScreen(context, "Cable 18 Hilos", "assets/images/cable18.png");
+    return buildFullScreenImage(
+      context,
+      "IEC 60304",
+      "assets/images/tabla2.jpg",
+      isDarkMode, // Pasar el estado del modo oscuro
+    );
   }
 }
 
-class Cable14HilosScreen extends StatelessWidget {
+class CableamericanoHilosScreen extends StatelessWidget {
+  final bool isDarkMode;
+  CableamericanoHilosScreen(this.isDarkMode);
+
   @override
   Widget build(BuildContext context) {
-    return buildDetailScreen(context, "Cable 14 Hilos", "assets/images/cable14.png");
+    return buildFullScreenImage(
+      context,
+      "ANSI/TIA-598-D",
+      "assets/images/tabla1.jpg",
+      isDarkMode, // Pasar el estado del modo oscuro
+    );
   }
 }
 
-class Cable12HilosScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return buildDetailScreen(context, "Cable 12 Hilos", "assets/images/cable12.png");
-  }
-}
 
-class Cable10HilosScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return buildDetailScreen(context, "Cable 10 Hilos", "assets/images/cable10.png");
-  }
-}
 
-class Cable8HilosScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return buildDetailScreen(context, "Cable 8 Hilos", "assets/images/cable8.png");
-  }
-}
-
-// Método para construir la pantalla de detalle con imagen
-Widget buildDetailScreen(BuildContext context, String title, String imagePath) {
+Widget buildFullScreenImage(BuildContext context, String title, String imagePath, bool isDarkMode) {
   return Scaffold(
     appBar: AppBar(
       title: Text(
-        title, style: TextStyle(color: Colors.white),
-        ), 
-        backgroundColor: Color(0xFF00001B),
-        iconTheme: IconThemeData(color: Colors.white) 
+        title,
+        style: TextStyle(color: isDarkMode ? Colors.white : Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+      ),
+      backgroundColor: isDarkMode ? Colors.black : Colors.white, // Fondo del AppBar
+      iconTheme: IconThemeData(color: isDarkMode ? Colors.white : Colors.black), // Cambia el color del icono de "atrás"
+    ),
+    backgroundColor: isDarkMode ? Colors.black : Colors.white, // Fondo blanco
+    body: InteractiveViewer(
+      panEnabled: true, // Permite mover la imagen
+      boundaryMargin: EdgeInsets.zero,
+      minScale: 1.0, // Zoom mínimo (tamaño original)
+      maxScale: 5.0, // Zoom máximo
+      child: Center(
+        child: Image.asset(
+          imagePath,
+          width: double.infinity,
+          height: double.infinity,
+          fit: BoxFit.contain, // Ajuste sin recortes
         ),
-    body: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(imagePath, width: 200, height: 200),
-          SizedBox(height: 20),
-          Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w200)),
-        ],
       ),
     ),
   );
 }
+
+

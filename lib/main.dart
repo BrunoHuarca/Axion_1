@@ -8,18 +8,26 @@ import 'screens/calculo_potencia_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final isDarkMode = await getThemePreference(); // Cargar la preferencia de tema antes de iniciar la app
-  runApp(MyApp(isDarkMode: isDarkMode));
+  final isDarkMode = await getThemePreference();
+  final username = await getUsernamePreference(); // 🔥 Nuevo: Obtener nombre del usuario
+  runApp(MyApp(isDarkMode: isDarkMode, username: username));
 }
 
 Future<bool> getThemePreference() async {
   final prefs = await SharedPreferences.getInstance();
-  return prefs.getBool('dark_mode') ?? false; // Retorna el tema guardado o falso por defecto
+  return prefs.getBool('dark_mode') ?? false;
+}
+
+Future<String> getUsernamePreference() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString('user_name') ?? 'Usuario';
 }
 
 class MyApp extends StatefulWidget {
   final bool isDarkMode;
-  MyApp({required this.isDarkMode});
+  final String username; // 🔥 Nuevo: Almacenar el nombre del usuario
+
+  MyApp({required this.isDarkMode, required this.username});
 
   @override
   _MyAppState createState() => _MyAppState();
@@ -27,11 +35,13 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late bool _isDarkMode;
+  late String _username; // 🔥 Nuevo: Variable para el nombre del usuario
 
   @override
   void initState() {
     super.initState();
     _isDarkMode = widget.isDarkMode;
+    _username = widget.username;
   }
 
   void _toggleTheme(bool isDark) async {
@@ -42,30 +52,24 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-@override
-Widget build(BuildContext context) {
-  return MaterialApp(
-    title: 'Axion App',
-    debugShowCheckedModeBanner: false,
-    theme: ThemeData(
-      brightness: _isDarkMode ? Brightness.dark : Brightness.light,
-      textSelectionTheme: TextSelectionThemeData(
-        cursorColor: Colors.black, // 🔥 Hace que el cursor sea negro en todos los TextField
-        selectionColor: Colors.grey.withOpacity(0.5), // Color al seleccionar texto
-        selectionHandleColor: Colors.black, // Controlador de selección negro
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Axion App',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        brightness: _isDarkMode ? Brightness.dark : Brightness.light,
       ),
-    ),
-    home: SplashScreen(toggleTheme: _toggleTheme, isDarkMode: _isDarkMode),
-    routes: {
-      '/login': (context) => LoginScreen(),
-      '/register': (context) => RegisterScreen(),
-      '/home': (context) => HomeScreen(toggleTheme: _toggleTheme, isDarkMode: _isDarkMode),
-      '/calculo_potencia': (context) => CalculoOpticoScreen(),
-      '/inicio': (context) => InicioScreen(toggleTheme: _toggleTheme, isDarkMode: _isDarkMode),
-    },
-  );
-}
-
+      home: SplashScreen(toggleTheme: _toggleTheme, isDarkMode: _isDarkMode),
+      routes: {
+        '/login': (context) => LoginScreen(),
+        '/register': (context) => RegisterScreen(),
+        '/home': (context) => HomeScreen(toggleTheme: _toggleTheme, isDarkMode: _isDarkMode),
+        '/calculo_potencia': (context) => CalculoOpticoScreen(),
+        '/inicio': (context) => InicioScreen(toggleTheme: _toggleTheme, isDarkMode: _isDarkMode),
+      },
+    );
+  }
 }
 
 class SplashScreen extends StatefulWidget {

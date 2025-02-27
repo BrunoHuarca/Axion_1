@@ -100,15 +100,15 @@ Future<bool> _getDarkModePreference() async {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 5),
-                          Text(
-                            'con Axion',
-                            style: GoogleFonts.inter(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
+                          // SizedBox(height: 5),
+                          // Text(
+                          //   'con Axion',
+                          //   style: GoogleFonts.inter(
+                          //     color: Colors.white,
+                          //     fontSize: 18,
+                          //     fontWeight: FontWeight.normal,
+                          //   ),
+                          // ),
                           SizedBox(height: 10),
                           Text(
                             'Accede a un conjunto de herramientas diseñadas para facilitar el diseño, implementación y mantenimiento de redes de telecomunicaciones que harán más eficiente tu trabajo en el campo.',

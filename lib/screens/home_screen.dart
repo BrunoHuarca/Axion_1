@@ -137,15 +137,15 @@ Future<bool> _getDarkModePreference() async {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 5),
-                          Text(
-                            'con Axion',
-                            style: GoogleFonts.inter(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
+                          // SizedBox(height: 5),
+                          // Text(
+                          //   'con Axion',
+                          //   style: GoogleFonts.inter(
+                          //     color: Colors.white,
+                          //     fontSize: 18,
+                          //     fontWeight: FontWeight.normal,
+                          //   ),
+                          // ),
                           SizedBox(height: 10),
                           Text(
                             'Aquí encontrarás información actualizada, explicaciones y material práctico para fortalecer tus conocimientos y habilidades técnicas.\n¡Aprende desde cualquier lugar!',
