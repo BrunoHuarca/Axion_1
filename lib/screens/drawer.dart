@@ -281,8 +281,8 @@ void _showLogoutDialog(BuildContext context) {
                   SizedBox(height: 15),
                   ListTile(
                     leading: _buildIcon(Icons.people, Colors.deepOrange),
-                    title: Text('Chat', style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black)),
-                    onTap: () => Navigator.pushNamed(context, '/chat'),
+                    title: Text('Grupos', style: TextStyle(color: _isDarkMode ? Colors.white : Colors.black)),
+                    onTap: () => Navigator.pushNamed(context, '/grupos'),
                   ),
                   SizedBox(height: 15),
                   Center(

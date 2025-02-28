@@ -5,11 +5,12 @@ import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/inicio_screen.dart';
 import 'screens/calculo_potencia_screen.dart';
+import 'screens/grupos_screen.dart'; // ✅ Agregamos la pantalla de grupos
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final isDarkMode = await getThemePreference();
-  final username = await getUsernamePreference(); // 🔥 Nuevo: Obtener nombre del usuario
+  final username = await getUsernamePreference(); 
   runApp(MyApp(isDarkMode: isDarkMode, username: username));
 }
 
@@ -25,7 +26,7 @@ Future<String> getUsernamePreference() async {
 
 class MyApp extends StatefulWidget {
   final bool isDarkMode;
-  final String username; // 🔥 Nuevo: Almacenar el nombre del usuario
+  final String username; 
 
   MyApp({required this.isDarkMode, required this.username});
 
@@ -35,7 +36,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late bool _isDarkMode;
-  late String _username; // 🔥 Nuevo: Variable para el nombre del usuario
+  late String _username; 
 
   @override
   void initState() {
@@ -67,6 +68,7 @@ class _MyAppState extends State<MyApp> {
         '/home': (context) => HomeScreen(toggleTheme: _toggleTheme, isDarkMode: _isDarkMode),
         '/calculo_potencia': (context) => CalculoOpticoScreen(),
         '/inicio': (context) => InicioScreen(toggleTheme: _toggleTheme, isDarkMode: _isDarkMode),
+        '/grupos': (context) => GruposScreen(), // ✅ Agregamos la ruta de grupos
       },
     );
   }
